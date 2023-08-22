@@ -46,7 +46,9 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
+
 /** end reset css**/
+
 body {
 	max-width: 1140px;
 	margin:auto;
@@ -58,10 +60,13 @@ header {
 	justify-content: space-between;
 	margin: 50px 0
 }
+main{
+	max-width: 950px;
+	margin: auto;
+}
 section {
 	margin: 50px 0
 }
-
 h1{
 	display: flex;
 	flex-direction: column;
@@ -70,14 +75,11 @@ h1{
 	font-weight: 800;
 	color: #B1663C
 }
-
 h1 > span {
 	font-family: 'Work Sans';
 	font-size:10px;
 	letter-spacing: 0.1em;
-;
 }
-
 h2{
 	font-family: 'Syne';
 	font-weight: 700;
@@ -85,45 +87,75 @@ h2{
 	color: #1D6154
 }
 nav ul {
+	height: 100%;
 	display: flex;
+	gap: 50px;
 	align-items: center;
 	list-style-type: none;
-
 }
 nav li {
-	padding: 0 10px;
-	font-size: 1.2em;
+	font-size: 16px;
 }
-
+nav li img{
+	height: 19px;
+}
 li:hover {
 	color: #B1663C;
 }
 #introduction {
 	display: flex;
 	align-items: center;
+	margin: 140px 0;
 }
 #introduction figure {
 	flex: 1
 }
 #introduction img {
 	display: block;
-	margin: auto;
 	width: 80%;
 }
-
 #introduction article {
 	flex: 1
 }
 #introduction h2 {
-	margin-bottom: 1em;
+	margin-bottom: 1.4rem;
 }
-
 #introduction p {
-	margin-bottom: 0.5em;
+	margin-bottom: 1.2rem;
+	color: #3d3d3d;
+}
+#introduction p:last-child{
+	margin-bottom: 0;
+}
+#portfolio{
+	margin: 65px 0;
 }
 #portfolio h2 {
 	text-align: center;
-	margin-bottom: 1em;
+	margin-bottom: 50px;
+}
+.filtres{
+	display: flex;
+	justify-content: center;
+	gap: 10px;
+	margin-bottom: 50px;
+}
+.filtres button{
+	min-width: 100px;
+	padding: 8px;
+	border-radius: 60px;
+	border: solid 1px #1D6154;
+	background-color: transparent;
+	font-family: 'Syne';
+	font-weight: 700;
+	font-size: 16px;
+	line-height: 19px;
+	color: #1D6154;
+	cursor: pointer;
+}
+.filtres .actif{
+	background-color: #1D6154;
+	color: white;
 }
 .gallery {
 	width: 100%;
@@ -132,18 +164,15 @@ li:hover {
 	grid-column-gap: 20px;
 	grid-row-gap: 20px;
 }
-
 .gallery img {
 	width: 100%;
-
 }
 #contact {
 	width: 50%;
-margin: auto;
+	margin: auto;
 }
 #contact > * {
 	text-align: center;
-
 }
 #contact h2{
 	margin-bottom: 20px;
@@ -154,7 +183,6 @@ margin: auto;
 	display: flex;
 	flex-direction: column;
 }
-
 #contact input {
 	height: 50px;
 	font-size: 1.2em;
@@ -168,7 +196,6 @@ margin: auto;
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
-
 input[type="submit"]{
 	font-family: 'Syne';
 	font-weight: 700;
@@ -179,10 +206,8 @@ input[type="submit"]{
 	text-align: center;
 	border-radius: 60px ;
 }
-
 footer nav ul {
 	display: flex;
 	justify-content: flex-end;
 	margin: 2em
 }
-
