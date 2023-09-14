@@ -10,8 +10,15 @@
 	<meta name="description" content="">
 	<link rel="stylesheet" href="./assets/style.css">
 	<script src="script_front.js" defer></script>
+	<script src="https://kit.fontawesome.com/5fe30726f7.js" crossorigin="anonymous"></script>
 </head>
 <body>
+	<div class="bandeau-edition">
+		<div>
+			<i class="fa-regular fa-pen-to-square"></i>
+			<p>Mode édition</p>
+		</div>
+	</div>	
 <header>
 	<h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
 	<nav>
@@ -36,7 +43,25 @@
 		</article>
 	</section>
 	<section id="portfolio">
-		<h2>Mes Projets</h2>
+		<div class="titre">
+					<h2>Mes Projets</h2>
+			<div class="modifier">
+				<i class="fa-regular fa-pen-to-square"></i>
+				<a href="#modale">modifier</a>
+			</div>
+		</div>
+		<dialog>
+			<div class="nav-modale" role="dialog" aria-modal="true">
+				<a href="#"><i class="fa-solid fa-arrow-left"></i></a>
+				<button class="bouton-fermer-modale"><i class="fa-solid fa-xmark"></i></button>
+			</div>
+			<section class="galerie-modale">
+				<h3>Galerie photo</h3>
+				<div class="conteneur-images">
+				</div>
+				<button>Ajouter une photo</button>
+			</section>
+		</dialog>
 		<div class="filtres">
 			<button>Tous</button>
 		</div>
