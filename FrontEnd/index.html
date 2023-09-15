@@ -50,7 +50,7 @@
 				<a href="#modale">modifier</a>
 			</div>
 		</div>
-		<dialog>
+		<dialog id="modale-galerie">
 			<div class="nav-modale" role="dialog" aria-modal="true">
 				<a href="#"><i class="fa-solid fa-arrow-left"></i></a>
 				<button class="bouton-fermer-modale"><i class="fa-solid fa-xmark"></i></button>
@@ -59,7 +59,35 @@
 				<h3>Galerie photo</h3>
 				<div class="conteneur-images">
 				</div>
-				<button>Ajouter une photo</button>
+				<button class="js-ajout">Ajouter une photo</button>
+			</section>
+		</dialog>
+		<dialog id="modale-ajout">
+			<div class="nav-modale" role="dialog" aria-modal="true">
+				<a href="#modale-galerie"><i class="fa-solid fa-arrow-left"></i></a>
+				<button class="bouton-fermer-modale"><i class="fa-solid fa-xmark"></i></button>
+			</div>
+			<section class="galerie-modale">
+				<h3>Ajout photo</h3>
+				<form action="#" method="post">
+					<div class="conteneur-upload">
+						<i class="fa-regular fa-image"></i>
+						<input type="file" name="image" id="image" class="invisible">
+						<label for="image">
+							<div class="bouton-ajouter"><p>+ Ajouter photo</p></div>
+							<p>jpg, png : 4mo max</p>
+						</label>
+					</div>
+					<label for="titre">Titre<span></span></label>
+					<input type="text" name="titre" id="titre">
+					<label for="categorie">Catégorie<span></span></label>
+					<div class="css-select">
+						<select name="categorie" id="categorie">
+						</select>
+					</div>
+					<span class="separation"></span>
+					<input type="submit" value="Valider">
+				</form>
 			</section>
 		</dialog>
 		<div class="filtres">

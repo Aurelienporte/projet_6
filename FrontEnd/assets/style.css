@@ -187,7 +187,7 @@ dialog[open]{
 	display: flex;
 	flex-flow: column;
 	align-items: center;
-	padding: 32px 0 45px;
+	padding: 27px 0 45px;
 }
 dialog::backdrop{
 	background-color:rgba(0, 0, 0, 0.3);
@@ -195,12 +195,18 @@ dialog::backdrop{
 dialog .fa-solid{
 	cursor: pointer;
 }
+dialog .fa-arrow-left{
+	font-size: 18px;
+}
+dialog .fa-xmark{
+	font-size: 14px;
+}
 .nav-modale{
 	display: flex;
 	justify-content: space-between;
 	width: calc(100% - 64px);
 }
-.nav-modale a{
+.nav-modale a[href="#"]{
 	visibility: hidden;
 }
 .nav-modale button{
@@ -263,6 +269,136 @@ dialog .fa-trash-can{
 	border-radius: 60px ;
 	cursor: pointer;
 }
+/****** MODALE AJOUTER PHOTO ******/
+#modale-ajout dialog[open]{
+	padding: 32px 0 55px ;
+}
+#modale-ajout h3{
+	margin-bottom: 21px;
+}
+#modale-ajout form {
+	width: 420px;
+	text-align: left;
+	display: flex;
+	flex-flow: column;
+	align-items: flex-start;
+}
+#modale-ajout .conteneur-upload{
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	width: 100%;
+	height: 169px;
+	border-radius: 3px;
+	background-color: #E8F1F6;
+}
+#modale-ajout .fa-image{
+	font-size: 60px;
+	color: #B9C5CC;
+	margin: 22px 0 13px;
+}
+.apercu{
+	height: 100%;
+}
+.invisible{
+	visibility: hidden;
+	height: 0;
+}
+#modale-ajout input[type="file"]::file-selector-button{
+	display: none;
+}
+#modale-ajout label[for="image"]{
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	gap: 8px;
+	font-family: 'Work Sans';
+	font-size: 10px;
+	font-weight: 400;
+	color: #444;
+	margin: 0 0 19px;
+}
+#modale-ajout label{
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	font-weight: 700;
+	color: #3d3d3d;
+	margin: 2em 0 1em 0;
+}
+#modale-ajout .bouton-ajouter{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 36px;
+	width: 173px;
+	border-radius: 50px;
+	font-family: 'Work Sans';
+	font-weight: 500;
+	font-size: 14px;
+	color: #306685;
+	background-color: #cbd6DC;
+	cursor: pointer;
+}
+dialog input[type="text"], dialog select{
+	height: 50px;
+	width: 100%;
+	font-size: 1.2em;
+	border: none;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+	padding-left: 17px;
+}
+dialog input[type="text"].invalide, dialog select.invalide{
+	border: 1px solid red;
+	box-shadow: 0px 4px 14px rgba(255, 0, 0, 0.2);
+}
+.erreur{
+	color: red;
+}
+select{
+	appearance: none;
+	outline: none;
+	grid-area:2/1/3/2 ;
+	color: #444;
+}
+select option{
+	color: #444;
+}
+.css-select{
+	display: grid;
+	grid-template-rows: auto 50px;
+	align-items: center;
+	width: 100%;
+}
+.css-select::after {
+	grid-area: 2/1/3/2;
+	justify-self: end;
+	content: "";
+	width: 11px;
+	height: 9px;
+	margin-right: 29px;
+	background-color: #a7a7a7;
+	clip-path: polygon(50% 60%, 85% 20%, 100% 35%, 50% 90%, 0 35%, 15% 20%);
+  }
+.separation{
+	height: 1px;
+	width: 100%;
+	margin: 46px 0 32px;
+	background-color: #b3b3b3 ;
+}
+#modale-ajout input[type="submit"]{
+	height: 36px;
+	width: 237px;
+	border-radius: 60px;
+	font-family: 'Syne';
+	font-weight: 700;
+	color: white;
+	text-align: center;
+	background-color: #a7a7a7;
+	border: none;
+	cursor: pointer;
+	margin: 0 auto;
+}
 /****** BARRE DE FILTRES ******/
 .filtres{
 	display: flex;
@@ -315,16 +451,16 @@ dialog .fa-trash-can{
 	display: flex;
 	flex-direction: column;
 }
-#contact input {
+#contact input{
 	height: 50px;
 	font-size: 1.2em;
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
-#contact label {
+#contact label{
 	margin: 2em 0 1em 0;
 }
-#contact textarea {
+#contact textarea{
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
@@ -337,10 +473,10 @@ input[type="submit"]{
 	width: 180px;
 	text-align: center;
 	border-radius: 60px ;
+}
 
 /****** FOOTER ******/
 
-}	
 footer{
 	width: 100%;
 	background-color: white;
