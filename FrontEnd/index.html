@@ -50,7 +50,7 @@
 				<a href="#modale">modifier</a>
 			</div>
 		</div>
-		<dialog id="modale-galerie">
+		<dialog id="modale-galerie" class="js-modale">
 			<div class="nav-modale" role="dialog" aria-modal="true">
 				<a href="#"><i class="fa-solid fa-arrow-left"></i></a>
 				<button class="bouton-fermer-modale"><i class="fa-solid fa-xmark"></i></button>
@@ -59,7 +59,7 @@
 				<h3>Galerie photo</h3>
 				<div class="conteneur-images">
 				</div>
-				<button class="js-ajout">Ajouter une photo</button>
+				<button id="js-ajout">Ajouter une photo</button>
 			</section>
 		</dialog>
 		<dialog id="modale-ajout">
@@ -75,18 +75,18 @@
 						<input type="file" name="image" id="image" class="invisible">
 						<label for="image">
 							<div class="bouton-ajouter"><p>+ Ajouter photo</p></div>
-							<p>jpg, png : 4mo max</p>
+							<p><span class="erreur"></span>jpg, png : 4mo max</p>
 						</label>
 					</div>
-					<label for="titre">Titre<span></span></label>
+					<label for="titre">Titre<span class="erreur"></span></label>
 					<input type="text" name="titre" id="titre">
-					<label for="categorie">Catégorie<span></span></label>
+					<label for="categorie">Catégorie<span class="erreur"></span></label>
 					<div class="css-select">
 						<select name="categorie" id="categorie">
 						</select>
 					</div>
 					<span class="separation"></span>
-					<input type="submit" value="Valider">
+					<input id="js-valider" type="submit" value="Valider">
 				</form>
 			</section>
 		</dialog>

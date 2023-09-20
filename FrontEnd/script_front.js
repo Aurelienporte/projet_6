@@ -1,24 +1,33 @@
 //Generation dynamique de la galerie
 const galerie = document.querySelector(".gallery");
 let works = [];
-
-async function getWorks(){
-    const r = await fetch("http://localhost:5678/api/works",{
-        headers: {
-            "accept":"application/json"
+//Requete serveur - Récupération des travaux
+try{
+    async function getWorks(){
+        const r = await fetch("http://localhost:5678/api/works",{
+            method:"GET",
+            headers: {
+                "accept":"application/json"
+            }
+        });
+        //Traitement de la réponse et stockage dans la variable works
+        if(r.ok){
+            const datajson = await r.json();
+            works.push(...datajson);
+            return datajson
         }
+    }
+    getWorks().then((a) => {
+        chargerImages(a)
+        return a
+    })
+    .then((a)=>{
+        chargerFiltres(a)
     });
-    const datajson = await r.json();
-    works.push(...datajson);
-    return datajson
 }
-getWorks().then((a) => {
-    chargerImages(a)
-    return a
-})
-.then((a)=>{
-    chargerFiltres(a)
-});
+catch(err){
+    console.log("erreur :",err);
+}
 
 //Appelle la fonction creerVignette autant de fois qu'il y a d'éléments
 function chargerImages(a){
@@ -117,12 +126,14 @@ if(localStorage.getItem("token")){
 //Generation dynamique des images de la modale
 const modale = document.querySelector("dialog");
 const conteneurImagesModale = document.querySelector(".conteneur-images");
+
 //Apelle la fonction creerItemModale autant de fois que la variable contient d'element, ouvre la modale ensuite
 function chargerGalerieModale (){
     conteneurImagesModale.innerHTML="";
     works.forEach(element => creerItemModale(element));
     modale.showModal();
 }
+
 //Creer une miniature avec icone poubelle, ajouter style et inserer element dans DOM
 function creerItemModale (element){
     const divImgPlusIcone = document.createElement("div");
@@ -150,12 +161,12 @@ boutonFermerModale[1].addEventListener("click", ()=>{
 });
 
 //Fermer la modale en cliquant à l'extérieur de la boite
-modale.addEventListener("click", fermerClicExterieur);
-function fermerClicExterieur (e){
-    if(e.offsetX > this.offsetWidth || e.offsetX < 0 || e.offsetY > this.offsetHeight || e.offsetY < 0 ){
-        this.close();
+modale.addEventListener("click", (e) => {
+    if(e.x < modale.offsetLeft || e.x > (modale.offsetLeft + modale.offsetWidth) || e.y < modale.offsetTop || e.y > (modale.offsetTop + modale.offsetHeight)){
+        modale.close();
     }
-}
+});
+
 //Supprimer un élément
 function supprimer (e){
     const id = e.target.getAttribute("id");
@@ -167,9 +178,12 @@ function supprimer (e){
             "authorization": "Bearer"+" "+token},
     });
 }
+
 //Ouvrir la modale pour ajouter un élément depuis le bouton "ajouter une photo"
-const boutonAjouter = document.querySelector(".js-ajout");
+const boutonAjouter = document.querySelector("#js-ajout");
 boutonAjouter.addEventListener("click", ajouterUnePhoto);
+const modaleAjout = document.getElementById("modale-ajout");
+
 //Ferme la modale galerie, ouvre la modale ajout, formulaire reinitialisé
 function ajouterUnePhoto (){
     modale.close();
@@ -177,27 +191,39 @@ function ajouterUnePhoto (){
     creerCategories();
     modaleAjout.showModal();
 }
-const modaleAjout = document.getElementById("modale-ajout");
-modaleAjout.addEventListener("click", fermerClicExterieur);
+
+//Fermer la modale au clic à l'extérieur de la boite
+modaleAjout.addEventListener("click", (e)=>{
+    if(e.x < modaleAjout.offsetLeft || e.x > (modaleAjout.offsetLeft + modaleAjout.offsetWidth) || e.y < modaleAjout.offsetTop || e.y > (modaleAjout.offsetTop + modaleAjout.offsetHeight)){
+        modaleAjout.close();
+    }
+});
+
+//Revenir à la modale galerie au clic sur la flèche
 const retourModale = document.querySelector(".nav-modale a[href=\"#modale-galerie\"]");
 retourModale.addEventListener("click", ()=>{
     modaleAjout.close();
     modale.showModal();
 })
-//Revient à un formaulaire vide
+
+//Reinitialiser le formulaire
 function effacerFormulaire (){
     apercu.remove();
+    erreurImage.innerHTML="";
     iconeFaImage.classList.remove("invisible");
     labelImage.classList.remove("invisible");
     boutonAjouterPhoto.classList.remove("invisible");
+    resultatValidationImg = false;
     inputTitre.value="";
     inputTitre.classList.remove("invalide");
+    resultatValidationTitre =false;
     messageErreur.innerHTML="";
-    messageErreur.classList.remove("erreur");
     selecteurCategorie.classList.remove("invalide");
     erreurCategorie.innerHTML="";
-    erreurCategorie.classList.remove("erreur");
+    resultatValidationCategorie= false;
+    boutonValider.classList.remove("ok");
 }
+
 //Creer dynamiquement la liste d'options "catégorie" du formulaire d'ajout
 const selecteurCategorie = document.querySelector("select");
 function creerCategories (){
@@ -213,7 +239,8 @@ function creerCategories (){
         selecteurCategorie.append(option);
     }
 }
-//Faire apparaitre une image miniature après la sélection d'un fichier
+
+//Gestion de input type=file
 const conteneurUpload = document.querySelector(".conteneur-upload");
 const iconeFaImage = document.querySelector(".fa-image");
 const inputImage = document.querySelector("input[name=\"image\"]");
@@ -221,93 +248,136 @@ const boutonAjouterPhoto = document.querySelector(".bouton-ajouter");
 const labelImage = document.querySelector("label[for=\"image\"]");
 const apercu = document.createElement("img");
 
-//Validation et affichage du fichier selectionné
+//Validation et affichage du fichier image selectionné
+const erreurImage = document.querySelector("label[for=\"image\"]>p span");
+const formats = ["jpeg", "jpg", "png"];
+let resultatValidationImg = false;
+
 inputImage.addEventListener("change", ()=>{
+    const fichier = inputImage.files[0];
     const lecteurImage = new FileReader();
+
     lecteurImage.addEventListener("load", (e)=>{
-        apercu.classList.add("apercu");
-        apercu.src=e.target.result;
-        conteneurUpload.prepend(apercu);
-        iconeFaImage.classList.add("invisible");
-        labelImage.classList.add("invisible");
-        boutonAjouterPhoto.classList.add("invisible");
+        
+        let nombreEchecs = 0;
+
+        for(let i = 0; i < formats.length; i++){
+            const regExImage = new RegExp ("^image\/"+formats[i]);
+            //Format correct
+            if(regExImage.test(fichier.type)){
+                //Format ok et taille inférieure à 4Mo
+                if(fichier.size < 4*1024*10**3){
+                    apercu.classList.add("apercu");
+                    apercu.src=e.target.result;
+                    conteneurUpload.prepend(apercu);
+                    iconeFaImage.classList.add("invisible");
+                    labelImage.classList.add("invisible");
+                    boutonAjouterPhoto.classList.add("invisible");
+                    resultatValidationImg = true;
+                    if(resultatValidationImg && resultatValidationTitre && resultatValidationCategorie){
+                        boutonValider.classList.add("ok");
+                    }
+                }
+                //Format ok mais taille supérieure à 4Mo
+                else{
+                    erreurImage.innerHTML="Le fichier est trop volumineux : ";
+                    resultatValidationImg = false;
+                }
+            }
+            //Format incorrect
+            else{
+                nombreEchecs += 1;
+                if(nombreEchecs == formats.length){
+                    erreurImage.innerHTML="Veuillez sélectionner une image au format suivant : ";
+                    resultatValidationImg = false;
+                }
+            }
+        }
     });
-    lecteurImage.readAsDataURL(inputImage.files[0]);
+    lecteurImage.readAsDataURL(fichier);
 });
 
 //Validation du champ de saisie pour le titre
 const inputTitre = document.querySelector("#titre");
+inputTitre.addEventListener("keydown", (e)=>{
+    if(e.key =="Enter"){
+        e.preventDefault();
+    }
+})
 inputTitre.addEventListener("change", validerTitre);
 const messageErreur = document.querySelector("label[for=titre] span");
+let resultatValidationTitre = false
 
 function validerTitre (){
     const titre = inputTitre.value;
     const regExTitre = /\w{2,}/;
     if(regExTitre.test(titre)=== false){
         inputTitre.classList.add("invalide");
-        messageErreur.classList.add("erreur");
         messageErreur.innerHTML="Titre invalide, 2 lettres min";
+        boutonValider.classList.remove("ok");
+        resultatValidationTitre = false;
     }
     else{
         inputTitre.classList.remove("invalide");
         messageErreur.innerHTML="";
-        return true
+        resultatValidationTitre= true;
+        if(resultatValidationImg && resultatValidationTitre && resultatValidationCategorie){
+            boutonValider.classList.add("ok");
+        }
     }
 }
 //Validation du choix d'une option dans la liste
 selecteurCategorie.addEventListener("change", validerCategorie);
 const erreurCategorie = document.querySelector("label[for=categorie] span");
-
+let resultatValidationCategorie = false;
 function validerCategorie (){
     if(selecteurCategorie.selectedIndex > 0){
         selecteurCategorie.classList.remove("invalide");
-        erreurCategorie.classList.remove("erreur");
         erreurCategorie.innerHTML="";
-        return true
+        resultatValidationCategorie = true;
+        if(resultatValidationImg && resultatValidationTitre && resultatValidationCategorie){
+            boutonValider.classList.add("ok");
+        }
     }
     else{
         selecteurCategorie.classList.add("invalide");
-        erreurCategorie.classList.add("erreur");
         erreurCategorie.innerHTML="Veuillez choisir une catégorie";
+        resultatValidationCategorie = false;
+        boutonValider.classList.remove("ok");
     }
 }
 //Si image valide, titre valide, catégorie choisie, lance fetch
+
 const formAjout = document.querySelector("dialog form");
+const boutonValider = document.querySelector("#js-valider");
+
 formAjout.addEventListener("submit", (event) => {
     event.preventDefault();
-
-    // if(validerMotDePasse(inputPassword.value) && validerCategorie() ){
-    //     envoyerImage();
-    // }
+    posterImage();
 });
 
+async function posterImage (){
+const imagePost = await inputImage.files[0].text();
 
+        //Data à envoyer avec fetch
+    const dataEnvoi ={
+        image : imagePost,
+        title : inputTitre.value,
+        category : selecteurCategorie.value
+    }
+    const chargeUtile = JSON.stringify(dataEnvoi);
+    console.log(dataEnvoi)
 
-
-
-
-// function handleFiles(files) {
-//     var imageType = /^image\//;
-//     for (var i = 0; i < files.length; i++) {
-//         var file = files[i];
-//         if (!imageType.test(file.type)) {
-//         alert("veuillez sélectionner une image");
-//         }else{
-//             if(i == 0){
-//                 preview.innerHTML = '';
-//             }
-//             var img = document.createElement("img");
-//             img.classList.add("obj");
-//             img.file = file;
-//             preview.appendChild(img); 
-//             var reader = new FileReader();
-//             reader.onload = ( function(aImg) {
-//                 return function(e) { 
-//                     aImg.src = e.target.result; 
-//                     }; 
-//             })(img);
+    //Requete
+    const token = localStorage.getItem("token");
     
-//             reader.readAsDataURL(file);
-//         }
-//     }
-//  }
+    const r = await fetch("http://localhost:5678/api/works", {
+        method:"POST",
+        headers: {  "Content-Type":"multipart/form-data",
+                    "accept":"application/json",
+                    "authorization": "Bearer"+" "+token
+                },
+        body: chargeUtile
+    });
+    console.log(r);
+}

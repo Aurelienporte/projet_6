@@ -46,7 +46,7 @@ function validerMotDePasse (){
 const form = document.querySelector('form');
 form.addEventListener("submit", (event) => {
     event.preventDefault();
-
+    event.stopPropagation();
     if(validerEmail(inputEmail.value) && validerMotDePasse(inputPassword.value)){
         login();
     }
@@ -61,6 +61,7 @@ async function login (){
     password : inputPassword.value
     }
     const chargeUtile = JSON.stringify(identifiants);
+    //Requete
     try{
         const r = await fetch("http://localhost:5678/api/users/login", {
             method:"POST",
@@ -69,13 +70,26 @@ async function login (){
                     },
             body: chargeUtile
        });
-        const datajson = await r.json();
-        const token = datajson["token"];
-        localStorage.setItem("token", token);
-        location.href="index.html";
-
-    }catch{
+       console.log(r);
+       //Accès autorisé
+       if(r.ok){
+            //Récupération du token de connexion
+            const datajson = await r.json();
+            const token = datajson["token"];
+            //Stockage du token et redirection sur la page d'accueil
+            localStorage.setItem("token", token);
+            location.href="index.html"; 
+        }
+        //Accès refusé erreur identifiants
         const messageErreurLogin = document.querySelector("#login p");
-        messageErreurLogin.innerHTML="Erreur de connexion";
+        if(r.status >= 400 && r.status<500){
+            messageErreurLogin.innerHTML="Accès refusé, email ou mot de passe incorrect";
+        }
+        //Accès refusé problème serveur
+        if(r.status >= 500){
+            messageErreurLogin.innerHTML="Echec de la connexion le serveur rencontre un problème";
+        }
+    }catch(err){
+    console.log("err",err);
     }
 }   
