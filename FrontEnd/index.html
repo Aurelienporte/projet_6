@@ -59,7 +59,7 @@
 				<h3>Galerie photo</h3>
 				<div class="conteneur-images">
 				</div>
-				<button id="js-ajout">Ajouter une photo</button>
+				<button id="js-ajout" class="gros-bouton-modale">Ajouter une photo</button>
 			</section>
 		</dialog>
 		<dialog id="modale-ajout">
@@ -69,20 +69,21 @@
 			</div>
 			<section class="galerie-modale">
 				<h3>Ajout photo</h3>
-				<form action="#" method="post">
+				<form id="js-form-ajout" action="#" method="post">
 					<div class="conteneur-upload">
 						<i class="fa-regular fa-image"></i>
 						<input type="file" name="image" id="image" class="invisible">
 						<label for="image">
-							<div class="bouton-ajouter"><p>+ Ajouter photo</p></div>
-							<p><span class="erreur"></span>jpg, png : 4mo max</p>
+							<span class="bouton-ajouter">+ Ajouter photo</span>
+							<span class="erreur"></span>
+							jpg, png : 4mo max
 						</label>
 					</div>
-					<label for="titre">Titre<span class="erreur"></span></label>
-					<input type="text" name="titre" id="titre">
-					<label for="categorie">Catégorie<span class="erreur"></span></label>
+					<label for="title">Titre<span class="erreur"></span></label>
+					<input type="text" name="title" id="title">
+					<label for="category">Catégorie<span class="erreur"></span></label>
 					<div class="css-select">
-						<select name="categorie" id="categorie">
+						<select name="category" id="category">
 						</select>
 					</div>
 					<span class="separation"></span>

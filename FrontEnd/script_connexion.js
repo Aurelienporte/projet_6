@@ -8,6 +8,7 @@ inputPassword.addEventListener("change",validerMotDePasse);
 //Affiche en rouge le champ de l'email si email incorrect
 function validerEmail (){
     const valueEmail = inputEmail.value;
+    valueEmail.trim();
     const regexEmail = new RegExp ("[a-z0-9._-]+@[a-z0-9._-]+\\.[a-z0-9._-]+");
     const messageErreur = document.querySelector("label[for=email] span");
 
@@ -26,6 +27,7 @@ function validerEmail (){
 //Affiche en rouge le champ du mot de passe si mot de passe incorrect
 function validerMotDePasse (){
     const motDePasse = inputPassword.value;
+    motDePasse.trim();
     const regexMotDePasse = new RegExp ("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,12}$");
     const messageErreur = document.querySelector("label[for=password] span");
 

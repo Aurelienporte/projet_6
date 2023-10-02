@@ -1,9 +1,23 @@
 //Generation dynamique de la galerie
 const galerie = document.querySelector(".gallery");
 let works = [];
+
+function actualiserPage (){
+    galerie.innerHTML="";
+    works = [];
+    getWorks().then((array) => {
+        chargerImages(array)
+        return array
+    })
+    .then((array)=>{
+        chargerFiltres(array)
+    });
+}
+actualiserPage();
+
 //Requete serveur - Récupération des travaux
-try{
-    async function getWorks(){
+async function getWorks(){
+    try{        
         const r = await fetch("http://localhost:5678/api/works",{
             method:"GET",
             headers: {
@@ -17,21 +31,14 @@ try{
             return datajson
         }
     }
-    getWorks().then((a) => {
-        chargerImages(a)
-        return a
-    })
-    .then((a)=>{
-        chargerFiltres(a)
-    });
-}
-catch(err){
-    console.log("erreur :",err);
+    catch(err){
+        console.log("erreur :",err);
+    }
 }
 
 //Appelle la fonction creerVignette autant de fois qu'il y a d'éléments
-function chargerImages(a){
-    a.forEach(objet => creerVignette(objet));
+function chargerImages(array){
+    array.forEach(objet => creerVignette(objet));
 };
 
 // Créer une vignette avec les données de l'objet et l'insère dans le html 
@@ -39,7 +46,6 @@ function creerVignette (element){
     const figure = document.createElement("figure");
     const img = document.createElement("img");
     const figcaption = document.createElement("figcaption");
-
     img.setAttribute("src",element.imageUrl);
     img.setAttribute("alt",element.title);
     figcaption.textContent = element.title;
@@ -53,7 +59,7 @@ const boutonTous = document.querySelector(".filtres button");
 boutonTous.classList.add("actif");
 boutonTous.addEventListener("click", filtreActif);
 boutonTous.addEventListener("click", tousLesProjets); 
-let categories = ["tous"];
+let filtres = ["tous"];
 
 //Change le style du filtre actif
 function filtreActif (event){
@@ -77,8 +83,8 @@ function chargerFiltres (a){
 function creerFiltre (element){
     const name = element.category.name;
     const indice = element["category"]["id"];
-    if(categories.includes(name) == false){
-        categories.push(name);
+    if(filtres.includes(name) == false){
+        filtres.push(name);
         const nouveauFiltre = document.createElement("button");
         nouveauFiltre.innerText= name;
         nouveauFiltre.addEventListener("click", filtreActif);
@@ -92,11 +98,11 @@ function creerFiltre (element){
     }
 };
 
-// MODE EDITION
+// MODE EDITION ****** MODE EDITION ****** MODE EDITION ****** MODE EDITION ****** MODE EDITION ******
 
 //Recherche du token de connexion
 if(localStorage.getItem("token")){
-    //Affiche "logout" ou lieu de "login"
+    //Affiche "logout" au lieu de "login"
     const logout = document.getElementById("log");
     logout.innerText="logout";
     logout.style.fontWeight=600;
@@ -137,46 +143,64 @@ function chargerGalerieModale (){
 //Creer une miniature avec icone poubelle, ajouter style et inserer element dans DOM
 function creerItemModale (element){
     const divImgPlusIcone = document.createElement("div");
-    divImgPlusIcone.classList.add("conteneur-img-icone");
+    conteneurImagesModale.append(divImgPlusIcone);
     const image = document.createElement("img");
+    divImgPlusIcone.append(image);
+    const iconePoubelle = document.createElement("i");
+    divImgPlusIcone.append(iconePoubelle);
+    divImgPlusIcone.classList.add("conteneur-img-icone");
     image.setAttribute("src",element.imageUrl);
     image.classList.add("miniature-modale");
-    const iconePoubelle = document.createElement("i");
-    iconePoubelle.classList.add("fa-solid");
-    iconePoubelle.classList.add("fa-trash-can");
     iconePoubelle.setAttribute("id",element.id);
     iconePoubelle.addEventListener("click", supprimer);
-    divImgPlusIcone.append(image);
-    divImgPlusIcone.append(iconePoubelle);
-    conteneurImagesModale.append(divImgPlusIcone);
+    iconePoubelle.classList.add("fa-solid");
+    iconePoubelle.classList.add("fa-trash-can");
 }
 
-//Fermer la modale au clic des bouton "x"
+//Fermer les modales au clic du bouton "X"
 const boutonFermerModale = document.querySelectorAll(".bouton-fermer-modale");
-boutonFermerModale[0].addEventListener("click", ()=>{
+boutonFermerModale[0].addEventListener("click", (e)=>{
+    e.stopPropagation();
     modale.close();
+    actualiserPage();
 });
-boutonFermerModale[1].addEventListener("click", ()=>{
+boutonFermerModale[1].addEventListener("click", (e)=>{
+    e.stopPropagation();
     modaleAjout.close();
+    actualiserPage();
 });
 
 //Fermer la modale en cliquant à l'extérieur de la boite
 modale.addEventListener("click", (e) => {
     if(e.x < modale.offsetLeft || e.x > (modale.offsetLeft + modale.offsetWidth) || e.y < modale.offsetTop || e.y > (modale.offsetTop + modale.offsetHeight)){
         modale.close();
+        actualiserPage();
     }
 });
 
 //Supprimer un élément
-function supprimer (e){
+async function supprimer (e){
     const id = e.target.getAttribute("id");
     const token = localStorage.getItem("token");
-    fetch("http://localhost:5678/api/works/"+id, {
-        method:"DELETE",
-        headers: {
-            "accept": "*/*",
-            "authorization": "Bearer"+" "+token},
-    });
+    try{
+        let reponse = await fetch("http://localhost:5678/api/works/"+id, {
+            method:"DELETE",
+            headers: {
+                "accept": "*/*",
+                "authorization": "Bearer "+token
+            },
+        });
+        console.log(reponse);
+        debugger
+        if(reponse.status >=200 && reponse.status<400){
+            const icone = e.target;
+            const divIcone = icone.parentNode;
+            divIcone.remove();
+        }
+    }
+    catch(err){
+        console.log("erreur:",err)
+    }
 }
 
 //Ouvrir la modale pour ajouter un élément depuis le bouton "ajouter une photo"
@@ -196,6 +220,7 @@ function ajouterUnePhoto (){
 modaleAjout.addEventListener("click", (e)=>{
     if(e.x < modaleAjout.offsetLeft || e.x > (modaleAjout.offsetLeft + modaleAjout.offsetWidth) || e.y < modaleAjout.offsetTop || e.y > (modaleAjout.offsetTop + modaleAjout.offsetHeight)){
         modaleAjout.close();
+        actualiserPage();
     }
 });
 
@@ -203,39 +228,73 @@ modaleAjout.addEventListener("click", (e)=>{
 const retourModale = document.querySelector(".nav-modale a[href=\"#modale-galerie\"]");
 retourModale.addEventListener("click", ()=>{
     modaleAjout.close();
+    chargerGalerieModale();
     modale.showModal();
 })
 
 //Reinitialiser le formulaire
+const boutonValider = document.querySelector("#js-valider");
+boutonValider.addEventListener("click", desactiverBouton)
+
+function desactiverBouton (event){
+    event.preventDefault();
+}
+
 function effacerFormulaire (){
+    //reset image
     apercu.remove();
     erreurImage.innerHTML="";
     iconeFaImage.classList.remove("invisible");
     labelImage.classList.remove("invisible");
     boutonAjouterPhoto.classList.remove("invisible");
     resultatValidationImg = false;
+    //reset titre
     inputTitre.value="";
     inputTitre.classList.remove("invalide");
     resultatValidationTitre =false;
     messageErreur.innerHTML="";
+    //reset catégories
     selecteurCategorie.classList.remove("invalide");
+    selecteurCategorie.selectedIndex=-1;
     erreurCategorie.innerHTML="";
     resultatValidationCategorie= false;
+    //reset bouton
     boutonValider.classList.remove("ok");
+    boutonValider.addEventListener("click", desactiverBouton);
 }
 
 //Creer dynamiquement la liste d'options "catégorie" du formulaire d'ajout
 const selecteurCategorie = document.querySelector("select");
+let categories = [];
+async function getCategories (){
+    try{
+        const reponse = await fetch("http://localhost:5678/api/categories",{
+            method:"GET",
+            headers: {
+                "accept":"application/json"
+            }
+        });
+    //Traitement de la réponse et stockage dans la variable categories
+        if(reponse.ok){
+            const datajson = await reponse.json();
+            categories.push(...datajson);
+        } 
+    }
+    catch(err){
+        console.log("erreur :",err)
+    }
+}
+getCategories();
+
 function creerCategories (){
-    let listeOptions = categories.slice(1);
     selecteurCategorie.innerHTML="";
     const optionVide = document.createElement("option");
     optionVide.setAttribute("value",null);
     selecteurCategorie.append(optionVide);
-    for(choix of listeOptions){
+    for(choix of categories){
         const option = document.createElement("option");
-        option.innerHTML = choix;
-        option.setAttribute("value",choix);
+        option.innerHTML = choix.name;
+        option.setAttribute("value",choix.id);
         selecteurCategorie.append(option);
     }
 }
@@ -249,7 +308,7 @@ const labelImage = document.querySelector("label[for=\"image\"]");
 const apercu = document.createElement("img");
 
 //Validation et affichage du fichier image selectionné
-const erreurImage = document.querySelector("label[for=\"image\"]>p span");
+const erreurImage = document.querySelector("label[for=\"image\"] .erreur");
 const formats = ["jpeg", "jpg", "png"];
 let resultatValidationImg = false;
 
@@ -276,6 +335,7 @@ inputImage.addEventListener("change", ()=>{
                     resultatValidationImg = true;
                     if(resultatValidationImg && resultatValidationTitre && resultatValidationCategorie){
                         boutonValider.classList.add("ok");
+                        boutonValider.removeEventListener("click", desactiverBouton)
                     }
                 }
                 //Format ok mais taille supérieure à 4Mo
@@ -298,15 +358,15 @@ inputImage.addEventListener("change", ()=>{
 });
 
 //Validation du champ de saisie pour le titre
-const inputTitre = document.querySelector("#titre");
+const inputTitre = document.querySelector("#title");
 inputTitre.addEventListener("keydown", (e)=>{
     if(e.key =="Enter"){
         e.preventDefault();
     }
-})
-inputTitre.addEventListener("change", validerTitre);
-const messageErreur = document.querySelector("label[for=titre] span");
-let resultatValidationTitre = false
+});
+inputTitre.addEventListener("input", validerTitre);
+const messageErreur = document.querySelector("label[for=title] span");
+let resultatValidationTitre = false;
 
 function validerTitre (){
     const titre = inputTitre.value;
@@ -315,6 +375,7 @@ function validerTitre (){
         inputTitre.classList.add("invalide");
         messageErreur.innerHTML="Titre invalide, 2 lettres min";
         boutonValider.classList.remove("ok");
+        boutonValider.addEventListener("click", desactiverBouton)
         resultatValidationTitre = false;
     }
     else{
@@ -323,12 +384,13 @@ function validerTitre (){
         resultatValidationTitre= true;
         if(resultatValidationImg && resultatValidationTitre && resultatValidationCategorie){
             boutonValider.classList.add("ok");
+            boutonValider.removeEventListener("click", desactiverBouton)
         }
     }
-}
+};
 //Validation du choix d'une option dans la liste
 selecteurCategorie.addEventListener("change", validerCategorie);
-const erreurCategorie = document.querySelector("label[for=categorie] span");
+const erreurCategorie = document.querySelector("label[for=category] span");
 let resultatValidationCategorie = false;
 function validerCategorie (){
     if(selecteurCategorie.selectedIndex > 0){
@@ -337,6 +399,7 @@ function validerCategorie (){
         resultatValidationCategorie = true;
         if(resultatValidationImg && resultatValidationTitre && resultatValidationCategorie){
             boutonValider.classList.add("ok");
+            boutonValider.removeEventListener("click", desactiverBouton)
         }
     }
     else{
@@ -344,40 +407,36 @@ function validerCategorie (){
         erreurCategorie.innerHTML="Veuillez choisir une catégorie";
         resultatValidationCategorie = false;
         boutonValider.classList.remove("ok");
+        boutonValider.addEventListener("click", desactiverBouton);
     }
-}
+};
 //Si image valide, titre valide, catégorie choisie, lance fetch
+const formAjout = document.querySelector("#js-form-ajout");
+formAjout.addEventListener("submit", posterImage);
 
-const formAjout = document.querySelector("dialog form");
-const boutonValider = document.querySelector("#js-valider");
-
-formAjout.addEventListener("submit", (event) => {
-    event.preventDefault();
-    posterImage();
-});
-
-async function posterImage (){
-const imagePost = await inputImage.files[0].text();
-
-        //Data à envoyer avec fetch
-    const dataEnvoi ={
-        image : imagePost,
-        title : inputTitre.value,
-        category : selecteurCategorie.value
-    }
-    const chargeUtile = JSON.stringify(dataEnvoi);
-    console.log(dataEnvoi)
-
-    //Requete
+//Soumettre le formulaire
+async function posterImage (e){
+    e.preventDefault();
+    const formdata = new FormData(formAjout);
     const token = localStorage.getItem("token");
-    
-    const r = await fetch("http://localhost:5678/api/works", {
-        method:"POST",
-        headers: {  "Content-Type":"multipart/form-data",
-                    "accept":"application/json",
-                    "authorization": "Bearer"+" "+token
-                },
-        body: chargeUtile
-    });
-    console.log(r);
-}
+    //Envoi des données
+    try{
+        const r = await fetch("http://localhost:5678/api/works", {
+            method:"POST",
+            headers: {  
+                        "authorization": "Bearer "+token
+                    },
+            body: formdata
+        });
+        if(r.status >=200 && r.status<=400){
+            effacerFormulaire();
+            actualiserPage();
+        }
+        else{
+            console.log("erreur");
+        }
+    }
+    catch(err){
+        console.log("erreur :", err);
+    }
+};
