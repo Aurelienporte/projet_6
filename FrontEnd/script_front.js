@@ -152,7 +152,7 @@ function creerItemModale (element){
     image.setAttribute("src",element.imageUrl);
     image.classList.add("miniature-modale");
     iconePoubelle.setAttribute("id",element.id);
-    iconePoubelle.addEventListener("click", supprimer);
+    iconePoubelle.addEventListener("click", supprimerProjet);
     iconePoubelle.classList.add("fa-solid");
     iconePoubelle.classList.add("fa-trash-can");
 }
@@ -162,24 +162,21 @@ const boutonFermerModale = document.querySelectorAll(".bouton-fermer-modale");
 boutonFermerModale[0].addEventListener("click", (e)=>{
     e.stopPropagation();
     modale.close();
-    actualiserPage();
 });
 boutonFermerModale[1].addEventListener("click", (e)=>{
     e.stopPropagation();
     modaleAjout.close();
-    actualiserPage();
 });
 
 //Fermer la modale en cliquant à l'extérieur de la boite
 modale.addEventListener("click", (e) => {
     if(e.x < modale.offsetLeft || e.x > (modale.offsetLeft + modale.offsetWidth) || e.y < modale.offsetTop || e.y > (modale.offsetTop + modale.offsetHeight)){
         modale.close();
-        actualiserPage();
     }
 });
 
-//Supprimer un élément
-async function supprimer (e){
+//Supprimer un projet de la galerie
+async function supprimerProjet (e){
     const id = e.target.getAttribute("id");
     const token = localStorage.getItem("token");
     try{
@@ -191,11 +188,11 @@ async function supprimer (e){
             },
         });
         console.log(reponse);
-        debugger
         if(reponse.status >=200 && reponse.status<400){
             const icone = e.target;
             const divIcone = icone.parentNode;
             divIcone.remove();
+            actualiserPage();
         }
     }
     catch(err){
@@ -220,7 +217,6 @@ function ajouterUnePhoto (){
 modaleAjout.addEventListener("click", (e)=>{
     if(e.x < modaleAjout.offsetLeft || e.x > (modaleAjout.offsetLeft + modaleAjout.offsetWidth) || e.y < modaleAjout.offsetTop || e.y > (modaleAjout.offsetTop + modaleAjout.offsetHeight)){
         modaleAjout.close();
-        actualiserPage();
     }
 });
 
@@ -325,7 +321,7 @@ inputImage.addEventListener("change", ()=>{
             //Format correct
             if(regExImage.test(fichier.type)){
                 //Format ok et taille inférieure à 4Mo
-                if(fichier.size < 4*1024*10**3){
+                if(fichier.size < 4*1024*1024){
                     apercu.classList.add("apercu");
                     apercu.src=e.target.result;
                     conteneurUpload.prepend(apercu);
